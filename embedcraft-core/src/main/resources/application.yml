@@ -9,8 +9,6 @@ spring:
     username: root
     password: 499team3
     driver-class-name: com.mysql.cj.jdbc.Driver
-    type: org.apache.ibatis.datasource.pooled.PooledDataSource
-
 # MyBatis Configuration
 mybatis:
   mapper-locations: classpath*:mappers/*.xml
