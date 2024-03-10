@@ -27,7 +27,7 @@ public class UserController {
         Integer userID = userService.login(userInfo.getAccount(), userInfo.getPassword());
         // If login failed (userID < 0)
         if (userID < 0){
-            responseBody.put("error", "Invalid login credentials.");
+            responseBody.put("error", "Invalid login credentials");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(responseBody);
         }
