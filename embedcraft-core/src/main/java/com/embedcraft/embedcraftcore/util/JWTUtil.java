@@ -1,11 +1,10 @@
 package com.embedcraft.embedcraftcore.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.SecretKey;
@@ -97,12 +96,16 @@ public class JWTUtil {
      */
     public static boolean isTokenExpired(String token) {
         // Retrieve claims from the token
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
+        Claims claims = null;
+        try {
+             claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (SignatureException e){
+            return true;
+        }
         // Retrieve the expiration date from the claims.
         Date expiration = claims.getExpiration();
         // Compare the expiration date with the current date.
@@ -147,5 +150,8 @@ public class JWTUtil {
         return blacklist.contains(token);
     }
 
+    public static boolean isTokenInvalid(String token){
+        return isInBlacklist(token) || isTokenExpired(token);
+    }
 
 }
