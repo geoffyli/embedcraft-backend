@@ -32,7 +32,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
         }
         responseBody.put("userId", userID);
-        // TODO: JWT Authorization
+        // JWT Authorization
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("Authorization", JWTUtil.createJWT(userID));
 
@@ -60,13 +60,13 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, Object>> logout(@RequestHeader(value = "Authorization", required = false) String Token) {
+    public ResponseEntity<Map<String, Object>> logout(@RequestHeader(value = "Authorization", required = true) String token) {
         Map<String, Object> responseBody = new HashMap<>();
 
         // Verify that the token exists
-        if (Token != null && !Token.isEmpty()) {
+        if (token != null && !token.isEmpty() && !JWTUtil.isTokenInvalid(token)) {
             // add a token to the blacklist.
-            JWTUtil.invalidateJWT(Token);
+            JWTUtil.invalidateJWT(token);
 
             responseBody.put("message", "Successfully logged out.");
             return ResponseEntity.ok().body(responseBody);
