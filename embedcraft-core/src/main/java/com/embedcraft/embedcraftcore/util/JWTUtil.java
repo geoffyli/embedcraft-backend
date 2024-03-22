@@ -1,16 +1,17 @@
 package com.embedcraft.embedcraftcore.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+
 
 /**
  * Utility class for JSON Web Token (JWT) operations including token generation, parsing, and validation.
@@ -18,83 +19,117 @@ import java.util.*;
  */
 @Slf4j
 public class JWTUtil {
-    public static final String JWT_KEY = "123456";
+    private static final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Secure key generation
 
     public static final long JWT_EXPIRY_DURATION = 30 * 60 * 1000L; // 30 minutes in milliseconds
 
     public static List<String> blacklist = new ArrayList<>();
 
-    /**
-     * Encodes the JWT secret key using Base64 and creates a {@link SecretKey}.
-     *
-     * @return The encoded {@link SecretKey}.
-     */
-    private static SecretKey getSecretKey() {
-        // Assuming JWT_KEY is your secret string
-        // Adjust this to use a more secure way of generating and storing keys
-        return Keys.hmacShaKeyFor(JWT_KEY.getBytes());
-    }
+//    //    /**
+////     * Encodes the JWT secret key using Base64 and creates a {@link SecretKey}.
+////     *
+////     * @return The encoded {@link SecretKey}.
+////     */
+//    private static SecretKey getSecretKey() {
+//        // Convert the secret string key into a SecretKey object
+//        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+//    }
 
     /**
-     * Generates a JWT token for the given admin ID.
+     * Generates a JWT token for the given user ID.
      *
-     * @param adminId The ID of the admin for whom the token is to be generated.
+     * @param userId The ID of the user for whom the token is to be generated.
      * @return A string representation of the JWT token.
      */
-    public static String createJWT(Integer adminId) {
+    public static String createJWT(Integer userId) {
         long nowMillis = System.currentTimeMillis();
         long expMillis = nowMillis + JWT_EXPIRY_DURATION;
         Date now = new Date(nowMillis);
         Date exp = new Date(expMillis);
 
         // Generate the JWT token
-        try {
-            return Jwts.builder()
-                    .setId(UUID.randomUUID().toString())
-                    .setSubject(JSONUtil.serialize(adminId))
-                    .setIssuer("system")
-                    .setIssuedAt(now)
-                    .setExpiration(exp)
-                    .signWith(getSecretKey(), SignatureAlgorithm.HS256)
-                    .compact();
-        } catch (JsonProcessingException e) {
-            log.error("JSON serialization error during JWT creation", e);
-            return null;
-        }
+        return Jwts.builder()
+                .setSubject(userId.toString())
+                .setIssuedAt(now)
+                .setExpiration(exp)
+                .signWith(secretKey)
+                .compact();
+
     }
 
-
     /**
-     * Parses a JWT token to extract the claims.
+     * Parses the given JWT token to extract the user ID.
      *
      * @param token The JWT token to be parsed.
-     * @return The {@link Claims} contained within the token.
+     * @return The user ID as an Integer, or null if the token is invalid or the user ID cannot be extracted.
      */
-    public static Claims parseJWT(String token) {
-        return Jwts.parserBuilder()  // Updated to use parserBuilder()
-                .setSigningKey(getSecretKey()) // No change here, but method is now on the builder
-                .build() // Build the JwtParser instance
+    public static Integer parseUserIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
+
+        return Integer.parseInt(claims.getSubject());
     }
 
+
+//    /**
+//     * Parses a JWT token to extract the claims.
+//     *
+//     * @param token The JWT token to be parsed.
+//     * @return The {@link Claims} contained within the token.
+//     */
+//    public static Claims parseJWT(String token) {
+//        return Jwts.parserBuilder()  // Updated to use parserBuilder()
+//                .setSigningKey(getSecretKey()) // No change here, but method is now on the builder
+//                .build() // Build the JwtParser instance
+//                .parseClaimsJws(token)
+//                .getBody();
+//    }
+
     /**
-     * Parses a JWT token and deserializes the subject into a specific class type.
+     * Checks if a given JWT token has expired.
      *
-     * @param token The JWT token to be parsed.
-     * @param clazz The class type to deserialize the subject into.
-     * @param <T>   The type of the class.
-     * @return An instance of {@code T} with fields populated from the token's subject.
+     * @param token The JWT token to be checked.
+     * @return {@code true} if the token has expired, otherwise {@code false}.
      */
-    public static <T> T parseJWT(String token, Class<T> clazz) {
-        Claims body = parseJWT(token);
+    public static boolean isTokenExpired(String token) {
+        // Retrieve claims from the token
+        Claims claims = null;
         try {
-            return JSONUtil.deserialize(body.getSubject(), clazz);
-        } catch (IOException e) {
-            log.error("Error deserializing token subject into class", e);
-            throw new RuntimeException("Token parsing error", e);
+             claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (SignatureException e){
+            return true;
         }
+        // Retrieve the expiration date from the claims.
+        Date expiration = claims.getExpiration();
+        // Compare the expiration date with the current date.
+        return expiration.before(new Date());
     }
+
+
+//    /**
+//     * Parses a JWT token and deserializes the subject into a specific class type.
+//     *
+//     * @param token The JWT token to be parsed.
+//     * @param clazz The class type to deserialize the subject into.
+//     * @param <T>   The type of the class.
+//     * @return An instance of {@code T} with fields populated from the token's subject.
+//     */
+//    public static <T> T parseJWT(String token, Class<T> clazz) {
+//        Claims body = parseJWT(token);
+//        try {
+//            return JSONUtil.deserialize(body.getSubject(), clazz);
+//        } catch (IOException e) {
+//            log.error("Error deserializing token subject into class", e);
+//            throw new RuntimeException("Token parsing error", e);
+//        }
+//    }
 
     /**
      * Adds a token to a blacklist, effectively invalidating it for future use.
@@ -115,5 +150,8 @@ public class JWTUtil {
         return blacklist.contains(token);
     }
 
+    public static boolean isTokenInvalid(String token){
+        return isInBlacklist(token) || isTokenExpired(token);
+    }
 
 }
