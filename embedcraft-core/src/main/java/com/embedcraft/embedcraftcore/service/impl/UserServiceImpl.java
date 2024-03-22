@@ -65,17 +65,6 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * User logout
-     *
-     * @param token the JWT token to be invalidated
-     */
-    @Override
-    public void logout(String token) {
-        // TODO: Implementation details for invalidating JWT token
-
-    }
-
-    /**
      * Check if the input string is null or empty.
      *
      * @param str the string to be checked

@@ -18,10 +18,4 @@ public interface UserService {
      * @return the user id
      */
     Integer addUser(String account, String password);
-
-    /**
-     * User logout
-     * @param token the JWT token to be invalidated
-     */
-    void logout(String token);
 }
