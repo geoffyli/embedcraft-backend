@@ -32,6 +32,9 @@ public class ResFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
+        // Configure CORS headers.
+        response.setHeader("Access-Control-Expose-Headers","Authorization");
+
         // Attempt to retrieve the old token from the Authorization header
         String oldToken = request.getHeader("Authorization");
 
