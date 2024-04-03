@@ -16,6 +16,11 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>com.embedcraft</groupId>
+            <artifactId>grpc-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Mybatis -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>

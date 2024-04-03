@@ -1,4 +1,4 @@
-package com.embedcraft;
+package com.embedcraft.grpcclient;
 
 public class Main {
     public static void main(String[] args) {
