@@ -4,21 +4,6 @@ syntax = "proto3";
 option java_package = "com.embedcraft.grpcclient";
 option java_multiple_files = true;
 
-// The embeddings service definition.
-service EmbeddingsService {
-  // Sends a request to train new word embeddings
-  rpc TrainEmbeddings (TrainRequest) returns (TrainResponse) {}
-}
-
-// The request message containing the training data information.
-message TrainRequest {
-  string data = 1;
-}
-
-// The response message containing the result of the training.
-message TrainResponse {
-  string message = 1;
-}
 
 // The greeter service definition.
 service Greeter {
@@ -34,4 +19,28 @@ message HelloRequest {
 // The response message containing the greetings
 message HelloReply {
   string message = 1;
+}
+
+// The training service definition.
+service ModelTrainingService {
+  // Sends training settings and dataset to Python for model training
+  rpc TrainModel(TrainRequest) returns (TrainResponse);
+}
+
+// The request message containing the training settings and dataset.
+message TrainRequest {
+  string name = 1;
+  string tag = 2;
+  string algorithm = 3;
+  string blobName = 4;
+  int32 minCount = 5;
+  int32 vectorSize = 6;
+  int32 windowSize = 7;
+  int32 epochs = 8;
+}
+
+// The response message containing the training results.
+message TrainResponse {
+  string message = 1;
+  string taskId = 2;
 }

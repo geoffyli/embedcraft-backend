@@ -1,9 +1,11 @@
 package com.embedcraft.grpcclient;
 
+import com.embedcraft.grpcclient.model.TrainRequestModel;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import org.springframework.stereotype.Component;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,7 +18,7 @@ public class GrpcClient {
 
     // Stubs for making gRPC calls - they abstract the remote method calls
     private GreeterGrpc.GreeterBlockingStub greeterBlockingStub;
-    private EmbeddingsServiceGrpc.EmbeddingsServiceBlockingStub embeddingsServiceBlockingStub;
+    private ModelTrainingServiceGrpc.ModelTrainingServiceBlockingStub modelTrainingServiceBlockingStub;
 
     /**
      * Initialize the gRPC client by setting up the connection to the server.
@@ -32,7 +34,7 @@ public class GrpcClient {
                 .build();
         // Initialize blocking stubs for synchronous gRPC calls
         this.greeterBlockingStub = GreeterGrpc.newBlockingStub(channel);
-        this.embeddingsServiceBlockingStub = EmbeddingsServiceGrpc.newBlockingStub(channel);
+        this.modelTrainingServiceBlockingStub = ModelTrainingServiceGrpc.newBlockingStub(channel);
     }
 
 
@@ -41,50 +43,30 @@ public class GrpcClient {
         System.out.println("Client has been initialized");
     }
 
-
-    /**
-     * Method to call the sayHello RPC method provided by the Greeter service
-     * @param name the msg will be passed to the server
-     * @return the response msg from the server
-     */
-    public String callSayHello(String name) {
-
-        // Prepare the request with the provided name
-        HelloRequest request = HelloRequest.newBuilder().setName(name).build();
-        HelloReply response; // Variable to store the response
-        try{
-            // Make the RPC call using the blocking stub
-            response = greeterBlockingStub.sayHello(request);
-        } catch (StatusRuntimeException e){
-            // Log and handle the exception if the RPC call fails
-            logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-            return null; // Return null if there's an exception
-        }
-        // Log the received response message
-        logger.info("Received Greeting: " + response.getMessage());
-        return response.getMessage(); // Return the response message
-    }
-
     /**
      * Method to call the trainEmbeddings RPC method provided by the Embeddings service
-     * @param data the msg will be passed to the server
+     *
      * @return the response msg from the server
      */
-    public String trainEmbeddings(String data){
+    public String trainEmbeddings(TrainRequestModel trainRequestModel) {
         // Prepare the request with dummy data for training
-        TrainRequest request = TrainRequest.newBuilder().setData("Test Training").build();
+        TrainRequest request = TrainRequest.newBuilder().setName(trainRequestModel.getName())
+                .setTag(trainRequestModel.getTag()).setMinCount(trainRequestModel.getMinCount())
+                .setWindowSize(trainRequestModel.getWindowSize()).setEpochs(trainRequestModel.getEpochs())
+                .setBlobName(trainRequestModel.getBlobName()).setAlgorithm(trainRequestModel.getAlgorithm())
+                .setVectorSize(trainRequestModel.getVectorSize()).build();
         TrainResponse response; // Variable to store the response
-        try{
+        try {
             // Make the RPC call using the blocking stub
-            response = embeddingsServiceBlockingStub.trainEmbeddings(request);
-        }catch (StatusRuntimeException e){
+            response = modelTrainingServiceBlockingStub.trainModel(request);
+        } catch (StatusRuntimeException e) {
             // Log and handle the exception if the RPC call fails
             logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
             return null; // Return null if there's an exception
         }
-        // Log the received result message
-        logger.info("Received result: " + response.getMessage());
-        return response.getMessage(); // Return the result message
+            // Log the received result message
+        logger.info("Training settings Submission result: " + response.getMessage());
+        return response.getTaskId(); // Return the task ID
     }
 
 }
