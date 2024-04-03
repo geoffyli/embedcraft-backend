@@ -1,6 +1,10 @@
 package com.embedcraft.embedcraftcore.service.impl;
 
+import com.embedcraft.embedcraftcore.VO.TrainingSettingsVO;
 import com.embedcraft.embedcraftcore.service.ModelTrainingService;
+import com.embedcraft.embedcraftcore.util.GoogleCloudStorageUtil;
+import com.embedcraft.grpcclient.GrpcClient;
+import com.embedcraft.grpcclient.model.TrainRequestModel;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,34 +18,45 @@ import java.util.stream.Stream;
 
 @Service
 public class ModelTrainingServiceImpl implements ModelTrainingService {
+    /*
+    Initialize the gRPC client.
+     */
+    private final GrpcClient grpcClient = new GrpcClient();
 
+    /**
+     * Create a bufferedReader of the uploaded dataset.
+     * @param file the uploaded dataset file.
+     */
     @Override
-    public String saveDatasetTemporarily(MultipartFile file) {
+    public String uploadDatasetToCloud(MultipartFile file){
         try {
-            // Create a temporary file
-            File tempFile = File.createTempFile("dataset", ".tmp");
-            tempFile.deleteOnExit(); // Request deletion of the temp file on JVM exit
-
-            // Copy the contents of the MultipartFile to the temporary file
-            Files.copy(file.getInputStream(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
-            return tempFile.getAbsolutePath();
+            byte[] bytes = file.getBytes();
+            return GoogleCloudStorageUtil.uploadTextFile(bytes);
         } catch (Exception e) {
             // Handle the exception properly
+            e.printStackTrace();
             return null;
         }
     }
 
-    public void trainModel(String filePath) {
-//        if (this.tempFilePath != null && !this.tempFilePath.isEmpty()) {
-//            try (Stream<String> stream = Files.lines(Paths.get(this.tempFilePath))) {
-//                stream.forEach(line -> {
-//                    // Process each line for model training
-//                });
-//            } catch (IOException e) {
-//                // Handle the exception properly
-//                e.printStackTrace();
-//            }
-//        }
+    /**
+     * Submit the training settings to the python project
+     * @param vo the view object that contains training settings
+     * @return training task id on success
+     */
+    public String submitTrainingSettings(TrainingSettingsVO vo){
+        /*
+        Build a TrainRequestModel object.
+         */
+        TrainRequestModel trainRequestModel = new TrainRequestModel();
+        trainRequestModel.setName(vo.getName());
+        trainRequestModel.setTag(vo.getTag());
+        trainRequestModel.setAlgorithm(vo.getAlgorithm());
+        trainRequestModel.setEpochs(vo.getEpochs());
+        trainRequestModel.setMinCount(vo.getMinCount());
+        trainRequestModel.setVectorSize(vo.getVectorSize());
+        trainRequestModel.setBlobName(vo.getBlobName());
+        trainRequestModel.setWindowSize(vo.getWindowSize());
+        return grpcClient.trainEmbeddings(trainRequestModel);
     }
 }
