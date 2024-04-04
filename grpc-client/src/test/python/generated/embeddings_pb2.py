@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x65mbeddings.proto\"\x1c\n\x0cHelloRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x1d\n\nHelloReply\x12\x0f\n\x07message\x18\x01 \x01(\t\"\x98\x01\n\x0cTrainRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0b\n\x03tag\x18\x02 \x01(\t\x12\x11\n\talgorithm\x18\x03 \x01(\t\x12\x10\n\x08\x62lobName\x18\x04 \x01(\t\x12\x10\n\x08minCount\x18\x05 \x01(\x05\x12\x12\n\nvectorSize\x18\x06 \x01(\x05\x12\x12\n\nwindowSize\x18\x07 \x01(\x05\x12\x0e\n\x06\x65pochs\x18\x08 \x01(\x05\"0\n\rTrainResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0e\n\x06taskId\x18\x02 \x01(\t23\n\x07Greeter\x12(\n\x08SayHello\x12\r.HelloRequest\x1a\x0b.HelloReply\"\x00\x32\x43\n\x14ModelTrainingService\x12+\n\nTrainModel\x12\r.TrainRequest\x1a\x0e.TrainResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x65mbeddings.proto\"\x1c\n\x0cHelloRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x1d\n\nHelloReply\x12\x0f\n\x07message\x18\x01 \x01(\t\"\x98\x01\n\x0cTrainRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0b\n\x03tag\x18\x02 \x01(\t\x12\x11\n\talgorithm\x18\x03 \x01(\t\x12\x10\n\x08\x62lobName\x18\x04 \x01(\t\x12\x10\n\x08minCount\x18\x05 \x01(\x05\x12\x12\n\nvectorSize\x18\x06 \x01(\x05\x12\x12\n\nwindowSize\x18\x07 \x01(\x05\x12\x0e\n\x06\x65pochs\x18\x08 \x01(\x05\"0\n\rTrainResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0e\n\x06taskId\x18\x02 \x01(\t\"$\n\x12StatusQueryRequest\x12\x0e\n\x06taskId\x18\x01 \x01(\t\"\xf8\x01\n\x13StatusQueryResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0b\n\x03tag\x18\x03 \x01(\t\x12\x11\n\talgorithm\x18\x04 \x01(\t\x12\x10\n\x08minCount\x18\x05 \x01(\x05\x12\x12\n\nvectorSize\x18\x06 \x01(\x05\x12\x12\n\nwindowSize\x18\x07 \x01(\x05\x12\x0e\n\x06\x65pochs\x18\x08 \x01(\x05\x12\x14\n\x0ctrainingTime\x18\t \x01(\x05\x12\x16\n\x0evocabularySize\x18\n \x01(\x05\x12\x15\n\rmodelFilePath\x18\x0b \x01(\t\x12\x14\n\x0clossOverTime\x18\x0c \x03(\x02\x32\x33\n\x07Greeter\x12(\n\x08SayHello\x12\r.HelloRequest\x1a\x0b.HelloReply\"\x00\x32\x85\x01\n\x14ModelTrainingService\x12+\n\nTrainModel\x12\r.TrainRequest\x1a\x0e.TrainResponse\x12@\n\x13QueryTrainingStatus\x12\x13.StatusQueryRequest\x1a\x14.StatusQueryResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -29,8 +29,12 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_TRAINREQUEST']._serialized_end=234
   _globals['_TRAINRESPONSE']._serialized_start=236
   _globals['_TRAINRESPONSE']._serialized_end=284
-  _globals['_GREETER']._serialized_start=286
-  _globals['_GREETER']._serialized_end=337
-  _globals['_MODELTRAININGSERVICE']._serialized_start=339
-  _globals['_MODELTRAININGSERVICE']._serialized_end=406
+  _globals['_STATUSQUERYREQUEST']._serialized_start=286
+  _globals['_STATUSQUERYREQUEST']._serialized_end=322
+  _globals['_STATUSQUERYRESPONSE']._serialized_start=325
+  _globals['_STATUSQUERYRESPONSE']._serialized_end=573
+  _globals['_GREETER']._serialized_start=575
+  _globals['_GREETER']._serialized_end=626
+  _globals['_MODELTRAININGSERVICE']._serialized_start=629
+  _globals['_MODELTRAININGSERVICE']._serialized_end=762
 # @@protoc_insertion_point(module_scope)

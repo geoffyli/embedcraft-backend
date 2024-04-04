@@ -85,6 +85,11 @@ class ModelTrainingServiceStub(object):
                 request_serializer=embeddings__pb2.TrainRequest.SerializeToString,
                 response_deserializer=embeddings__pb2.TrainResponse.FromString,
                 )
+        self.QueryTrainingStatus = channel.unary_unary(
+                '/ModelTrainingService/QueryTrainingStatus',
+                request_serializer=embeddings__pb2.StatusQueryRequest.SerializeToString,
+                response_deserializer=embeddings__pb2.StatusQueryResponse.FromString,
+                )
 
 
 class ModelTrainingServiceServicer(object):
@@ -98,6 +103,13 @@ class ModelTrainingServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def QueryTrainingStatus(self, request, context):
+        """Query the status of the training task
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ModelTrainingServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -105,6 +117,11 @@ def add_ModelTrainingServiceServicer_to_server(servicer, server):
                     servicer.TrainModel,
                     request_deserializer=embeddings__pb2.TrainRequest.FromString,
                     response_serializer=embeddings__pb2.TrainResponse.SerializeToString,
+            ),
+            'QueryTrainingStatus': grpc.unary_unary_rpc_method_handler(
+                    servicer.QueryTrainingStatus,
+                    request_deserializer=embeddings__pb2.StatusQueryRequest.FromString,
+                    response_serializer=embeddings__pb2.StatusQueryResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -131,5 +148,22 @@ class ModelTrainingService(object):
         return grpc.experimental.unary_unary(request, target, '/ModelTrainingService/TrainModel',
             embeddings__pb2.TrainRequest.SerializeToString,
             embeddings__pb2.TrainResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def QueryTrainingStatus(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ModelTrainingService/QueryTrainingStatus',
+            embeddings__pb2.StatusQueryRequest.SerializeToString,
+            embeddings__pb2.StatusQueryResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

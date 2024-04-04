@@ -1,10 +1,10 @@
 package com.embedcraft.grpcclient;
 
+import com.embedcraft.grpcclient.model.QueryResponseModel;
 import com.embedcraft.grpcclient.model.TrainRequestModel;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
-import org.springframework.stereotype.Component;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,7 +17,6 @@ public class GrpcClient {
     private static final Logger logger = Logger.getLogger(GrpcClient.class.getName());
 
     // Stubs for making gRPC calls - they abstract the remote method calls
-    private GreeterGrpc.GreeterBlockingStub greeterBlockingStub;
     private ModelTrainingServiceGrpc.ModelTrainingServiceBlockingStub modelTrainingServiceBlockingStub;
 
     /**
@@ -33,14 +32,13 @@ public class GrpcClient {
                 .usePlaintext() // For development purposes; not recommended in production
                 .build();
         // Initialize blocking stubs for synchronous gRPC calls
-        this.greeterBlockingStub = GreeterGrpc.newBlockingStub(channel);
         this.modelTrainingServiceBlockingStub = ModelTrainingServiceGrpc.newBlockingStub(channel);
     }
 
 
     {
         initializeClient();
-        System.out.println("Client has been initialized");
+        System.out.println("gRPC Client has been initialized");
     }
 
     /**
@@ -64,9 +62,28 @@ public class GrpcClient {
             logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
             return null; // Return null if there's an exception
         }
-            // Log the received result message
+        // Log the received result message
         logger.info("Training settings Submission result: " + response.getMessage());
         return response.getTaskId(); // Return the task ID
+    }
+
+    public QueryResponseModel queryTrainingStatus(String taskId) {
+        // Prepare the request
+        StatusQueryRequest request = StatusQueryRequest.newBuilder().setTaskId(taskId).build();
+        StatusQueryResponse response;
+        try {
+            response = modelTrainingServiceBlockingStub.queryTrainingStatus(request);
+        } catch (StatusRuntimeException e) {
+            // Log and handle the exception if the RPC call fails
+            logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+            return null; // Return null if there's an exception
+        }
+        // Log the received result message
+        logger.info("Task " + taskId + " status: " + response.getStatus());
+        return new QueryResponseModel(response.getStatus(), response.getName(), response.getTag(),
+                response.getAlgorithm(), response.getMinCount(), response.getVectorSize(), response.getWindowSize(),
+                response.getEpochs(), response.getTrainingTime(), response.getVocabularySize(), response.getModelFilePath(),
+                response.getLossOverTimeList());
     }
 
 }
