@@ -3,19 +3,13 @@ import os
 
 bucket_name = "embedcraft"
 
-def upload_file_to_gcs(source_file_name, destination_blob_name):
+def upload_model_to_gcs(client, destination_blob_name, model_bytes):
     """Uploads a file to the bucket."""
-    # The ID of your GCS bucket
-    # The path to your file to upload
-    # The ID to give your GCS blob
     
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
+    bucket = client.bucket(bucket_name)
+
     blob = bucket.blob(destination_blob_name)
-
-    blob.upload_from_filename(source_file_name)
-
-    print(f"File {source_file_name} uploaded to {destination_blob_name}.")
+    blob.upload_from_string(model_bytes)
 
 
 def read_file_from_gcs(client, blob_name):
