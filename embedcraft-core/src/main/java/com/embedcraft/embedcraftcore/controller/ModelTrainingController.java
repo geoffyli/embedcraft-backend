@@ -2,18 +2,12 @@ package com.embedcraft.embedcraftcore.controller;
 
 
 import com.embedcraft.embedcraftcore.VO.TrainingSettingsVO;
-import com.embedcraft.embedcraftcore.VO.UserInfoVO;
 import com.embedcraft.embedcraftcore.service.ModelTrainingService;
 
-import com.embedcraft.embedcraftcore.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -80,5 +74,15 @@ public class ModelTrainingController {
             return ResponseEntity.ok().body(responseBody);
         }
     }
+
+    @GetMapping("model/status")
+    public ResponseEntity<Map<String, Object>> queryTrainingStatus(@RequestParam String taskId, @RequestParam Integer userId){
+        Map<String, Object> responseBody = new HashMap<>();
+        // Query training status
+        Integer res = modelTrainingService.queryTrainingStatus(userId, taskId);
+        responseBody.put("status", res);
+        return ResponseEntity.ok().body(responseBody);
+    }
+
 
 }

@@ -20,4 +20,12 @@ public interface ModelTrainingService {
      * @return training task id on success
      */
     String submitTrainingSettings(TrainingSettingsVO vo);
+
+    /**
+     * Query the status of the training task
+     * @param taskId the task id to be queried with
+     * @return the status of the task, 0: uncompleted, 1: completed, -1: failed
+     */
+    Integer queryTrainingStatus(Integer userId, String taskId);
+
 }
