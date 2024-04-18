@@ -3,16 +3,16 @@ import grpc
 import time
 
 # Import the generated classes and the service implementation
-from services.embeddings_pb2_grpc import add_EmbeddingsServiceServicer_to_server
-from services.embeddings_service import EmbeddingsService
+from generated.embeddings_pb2_grpc import add_ModelTrainingServiceServicer_to_server
+from services.embeddings_service import ModelTrainingService
 
 def serve():
     # Set up the server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    add_EmbeddingsServiceServicer_to_server(EmbeddingsService(), server)
-
-    # Listen on port 50051
-    server.add_insecure_port('[::]:50051')
+    # Add the model training servicer to server
+    add_ModelTrainingServiceServicer_to_server(ModelTrainingService(), server)
+    # Start the server
+    server.add_insecure_port('[::]:50051') # Listen on port 50051
     server.start()
     print("Server started on port 50051.")
     try:
