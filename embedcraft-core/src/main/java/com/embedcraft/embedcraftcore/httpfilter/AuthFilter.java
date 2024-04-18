@@ -18,7 +18,7 @@ public class AuthFilter implements Filter {
     /*
     Define allowed paths.
      */
-    private static final Set<String> ALLOWED_PATHS = Set.of("/login", "/signup", "/logout", "/model/upload", "/model/train", "/model/status");
+    private static final Set<String> ALLOWED_PATHS = Set.of("/login", "/signup", "/logout", "/model/upload", "/model/train", "/model/status", "/model/evaluation");
 
     /**
      * Implement doFilter method the check authorization.
