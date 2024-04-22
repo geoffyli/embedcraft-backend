@@ -24,6 +24,12 @@ def read_file_from_gcs(client, blob_name):
 
     return contents
 
+def download_blob(client, source_blob_name, destination_file_name):
+    """Downloads a blob from the bucket."""
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+
 def initialize_client():
     # Authenticate to GCS using the service account key file
     return storage.Client.from_service_account_json("./util/service-account-file.json")
