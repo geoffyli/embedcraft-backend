@@ -53,7 +53,7 @@ class TrainingTask:
                 # Tokenize words and preprocess
                 words = simple_preprocess(sentence, deacc=True)  # Remove punctuation and tokenize
                 # Remove stopwords and words with less than 3 characters
-                words = [word for word in words if word not in stop_words and len(word) > 2]
+                words = [word for word in words if word not in stop_words and len(word) > 1]
                 processed_sentences.append(words)
             self.preprocessed_data = processed_sentences
 
