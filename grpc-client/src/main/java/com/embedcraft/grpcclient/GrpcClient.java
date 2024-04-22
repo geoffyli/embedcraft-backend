@@ -6,6 +6,10 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +22,7 @@ public class GrpcClient {
 
     // Stubs for making gRPC calls - they abstract the remote method calls
     private ModelTrainingServiceGrpc.ModelTrainingServiceBlockingStub modelTrainingServiceBlockingStub;
+    private ModelEvaluationServiceGrpc.ModelEvaluationServiceBlockingStub modelEvaluationServiceBlockingStub;
 
     /**
      * Initialize the gRPC client by setting up the connection to the server.
@@ -33,6 +38,7 @@ public class GrpcClient {
                 .build();
         // Initialize blocking stubs for synchronous gRPC calls
         this.modelTrainingServiceBlockingStub = ModelTrainingServiceGrpc.newBlockingStub(channel);
+        this.modelEvaluationServiceBlockingStub = ModelEvaluationServiceGrpc.newBlockingStub(channel);
     }
 
 
@@ -84,6 +90,42 @@ public class GrpcClient {
                 response.getAlgorithm(), response.getMinCount(), response.getVectorSize(), response.getWindowSize(),
                 response.getEpochs(), response.getTrainingTime(), response.getVocabularySize(), response.getModelFilePath(),
                 response.getLossOverTimeList());
+    }
+
+    public void notifyModelLoading(String modelFilePath) {
+        // Prepare the request
+        NotifyModelLoadingRequest request = NotifyModelLoadingRequest.newBuilder().setModelFilePath(modelFilePath).build();
+        NotifyModelLoadingResponse response = null;
+        try {
+            response = modelEvaluationServiceBlockingStub.notifyModelLoading(request);
+        } catch (StatusRuntimeException e) {
+            // Log and handle the exception if the RPC call fails
+            logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+        }
+    }
+
+    public Map<String, List<?>> querySimilarWordList(String modelId, String word){
+        // Prepare the request
+        QuerySimilarWordListRequest request = QuerySimilarWordListRequest.newBuilder().setModelFilePath(modelId).setWord(word).build();
+        QuerySimilarWordListResponse response = null;
+        Map<String, List<?>> wordMap = new HashMap<>();
+
+        try{
+            response = modelEvaluationServiceBlockingStub.querySimilarWordList(request);
+
+            response.getWordsMap().forEach((key, wordData) -> {
+                List<Object> wordInfo = new ArrayList<>();
+                wordInfo.add(wordData.getSimilarity());
+                wordInfo.add(wordData.getCoordinatesList());
+                wordMap.put(key, wordInfo);
+            });
+        } catch (StatusRuntimeException e) {
+            // Log and handle the exception if the RPC call fails
+            logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+            return null;
+        }
+        return wordMap;
+
     }
 
 }

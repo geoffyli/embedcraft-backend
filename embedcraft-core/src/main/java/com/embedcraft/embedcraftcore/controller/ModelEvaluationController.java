@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -49,4 +50,38 @@ public class ModelEvaluationController {
             return ResponseEntity.ok().body(responseBody);
         }
     }
+
+    @GetMapping("model/search")
+    public ResponseEntity<Map<String, Object>> similaritySearch(@RequestParam String modelId, @RequestParam String word){
+        Map<String, Object> responseBody = new HashMap<>();
+        Map<String, List<?>> res_map = modelEvaluationService.getSimilarWordList(modelId, word);
+        if (res_map == null){
+            responseBody.put("message", "error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+        }
+        // Compose the response body
+        responseBody.put("message", "success");
+        responseBody.put("similarWords", res_map);
+        return ResponseEntity.ok().body(responseBody);
+
+    }
+
+    @GetMapping("model/query")
+    public ResponseEntity<Map<String, Object>> queryModels(@RequestParam Integer userId, @RequestParam String name, @RequestParam String tag){
+        Map<String, Object> responseBody = new HashMap<>();
+        if (name.equals("none"))
+            name = null;
+        if (tag.equals("none"))
+            tag = null;
+        List<ModelEntity> modelList = modelEvaluationService.getListOfModels(userId, name, tag);
+        if (modelList == null){
+            responseBody.put("message", "error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+        }
+        // Compose the response body
+        responseBody.put("message", "success");
+        responseBody.put("models", modelList);
+        return ResponseEntity.ok().body(responseBody);
+    }
+
 }

@@ -4,23 +4,6 @@ syntax = "proto3";
 option java_package = "com.embedcraft.grpcclient";
 option java_multiple_files = true;
 
-
-// The greeter service definition.
-service Greeter {
-  // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
-}
-
-// The request message containing the user's name.
-message HelloRequest {
-  string name = 1;
-}
-
-// The response message containing the greetings
-message HelloReply {
-  string message = 1;
-}
-
 // The training service definition.
 service ModelTrainingService {
   // Sends training settings and dataset to Python for model training
@@ -28,6 +11,15 @@ service ModelTrainingService {
 
   // Query the status of the training task
   rpc QueryTrainingStatus(StatusQueryRequest) returns (StatusQueryResponse);
+}
+
+// The evaluation service definition
+service  ModelEvaluationService {
+  // Notify the Python application to load the trained model
+  rpc NotifyModelLoading(NotifyModelLoadingRequest) returns (NotifyModelLoadingResponse);
+
+  // Query the similar word list
+  rpc QuerySimilarWordList(QuerySimilarWordListRequest) returns (QuerySimilarWordListResponse);
 }
 
 // The request message containing the training settings and dataset.
@@ -70,4 +62,31 @@ message StatusQueryResponse {
   string modelFilePath = 11;
 
   repeated float lossOverTime = 12;
+}
+
+
+// The request message containing the model file path.
+message NotifyModelLoadingRequest{
+  string modelFilePath = 1;
+}
+
+// The request message containing the message.
+message NotifyModelLoadingResponse{
+  string message = 1;
+}
+
+message QuerySimilarWordListRequest{
+  string modelFilePath = 1;
+  string word = 2;
+}
+
+// Define a message for the nested structure (float and list of floats)
+message WordData {
+  float similarity = 1;
+  repeated float coordinates = 2; // Assuming 2D coordinates
+}
+
+// The response message containing similar word list
+message QuerySimilarWordListResponse{
+  map<string, WordData> words = 1;
 }

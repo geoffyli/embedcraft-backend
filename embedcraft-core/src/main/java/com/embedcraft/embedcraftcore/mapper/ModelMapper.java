@@ -1,10 +1,9 @@
 package com.embedcraft.embedcraftcore.mapper;
 
 import com.embedcraft.embedcraftcore.entity.ModelEntity;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 /**
  * Mapper interface for executing SQL operations on the model entity.
@@ -29,4 +28,19 @@ public interface ModelMapper {
      */
     @Select("SELECT * FROM model WHERE model_id = #{modelId}")
     ModelEntity queryModel(String modelId);
+
+    /**
+     * Queries the database for a model with the given modelId.
+     *
+     * @param userId the ID of the user
+     * @param name the model name
+     * @param tag the model tag
+     * @return the ModelEntity object representing the model data, or null if not found
+     */
+    @Select("<script>" +
+            "SELECT * FROM model WHERE user_id = #{userId} " +
+            "<if test='name != null'>AND name = #{name}</if> " +
+            "<if test='tag != null'>AND tag = #{tag}</if>" +
+            "</script>")
+    List<ModelEntity> queryModelList(@Param("userId") Integer userId, @Param("name") String name, @Param("tag") String tag);
 }
